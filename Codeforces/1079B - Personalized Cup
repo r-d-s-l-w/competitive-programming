@@ -1,0 +1,46 @@
+#include <bits/stdc++.h>
+ 
+using namespace std;
+ 
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    string txt;
+    cin >> txt;
+    int l = txt.length();
+    if (l < 21) cout << 1 << ' ' << l << "\n" << txt;
+    else {
+            int best = 10000, it;
+        for (int i = 2; i < 6; ++i){
+            if (i*20 >= l) {
+                it = i;
+                break;
+            }
+        }
+        int row = (l + it - 1) / it;
+        int gw = row * it - l;
+        int gwi = 0;
+        int k = 1;
+        cout << it << ' ' << row << "\n";
+        if (gw > 0){
+            cout << '*';
+            gw--;
+            gwi++;
+        }
+        for (int i=0; i<l; ++i){
+            cout << txt[i];
+            if (i + 1 + gwi == row * k){
+                k++;
+                cout << "\n";
+                if (gw > 0){
+                cout << '*';
+                gw--;
+                gwi++;
+                }
+            }
+        }
+    }
+ 
+ 
+}

@@ -35,4 +35,3 @@ int main(){
         tab.PB({a, i});
     }
 }
-Tes

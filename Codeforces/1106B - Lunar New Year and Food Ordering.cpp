@@ -37,10 +37,38 @@ inline ll ones(ll n) {ll res=0;while(n&&++res)n-=last_bit(n);return res;}
 inline ll gcd(ll a, ll b) {return b==0?a:gcd(b,a%b);}
 inline ll lcm(ll a, ll b) {return a*(b/gcd(a,b));}
  
-ll n, m, x, a, b;
-ll dish[IN], price[IN], used[IN];
-pll cost[IN];
-priority_queue<int, vector<pll>, greater<pll> > pq;
+ll n, m, a, b, k;
+ll ilosc[IN], koszt[IN];
+pll dania[IN];
+ 
+ll solve(int numer, int ile){
+    ll res = 0;
+    if (ilosc[numer] >= ile){
+        ilosc[numer] -= ile;
+        res += ile * koszt[numer];
+        ile = 0;
+    }
+    else {
+        res += ilosc[numer] * koszt[numer];
+        ile -= ilosc[numer];
+        ilosc[numer] = 0;
+        while (ile != 0 && k < n){
+            if (ilosc[dania[k].S] >= ile){
+                ilosc[dania[k].S] -= ile;
+                res += ile * koszt[dania[k].S];
+                ile = 0;
+            }
+            else if (ilosc[dania[k].S] != 0) {
+                res += ilosc[dania[k].S] * koszt[dania[k].S];
+                ile -= ilosc[dania[k].S];
+                ilosc[dania[k].S] = 0;
+            }
+            if (ilosc[dania[k].S] == 0) ++k;
+        }
+        if (ile != 0 && k>=n) res = 0;
+    }
+    return res;
+}
  
 int main(){
     ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);
@@ -48,42 +76,17 @@ int main(){
     //freopen("test.in","r",stdin); freopen("test.out","w",stdout);
     cin >> n >> m;
     for (int i=0; i<n; ++i)
-        cin >> dish[i];
+        cin >> ilosc[i];
     for (int i=0; i<n; ++i){
-        cin >> price[i];
-        pq.push(MP(price[i],i));
+        cin >> koszt[i];
+        dania[i].F = koszt[i];
+        dania[i].S = i;
     }
+    sort(dania,dania+n);
     for (int i=0; i<m; ++i){
-        int res = 0;
         cin >> a >> b;
-        a-=1;
-        if (dish[a] - used[a] >= b){
-            used[a] += b; // wszystko mozna
-            res = price[a] * b;
-        }
-        else { // nie wszystko mozna
-            res = (dish[a] - used[a]) * price[a];
-            b -= (dish[a] - used[a]);
-            used[a] = dish[a]; //
- 
-            while (b != 0 && !pq.empty()){
-                if (dish[pq.top().S] - used[pq.top().S] >= b){
-                    res += b * pq.top().F;
-                    used[pq.top().S] += b;
-                    b = 0;
-                }
-                else if (dish[pq.top().S] != used[pq.top().S]){
-                    res += pq.top().F * (dish[pq.top().S] - used[pq.top().S]);
-                    b -= dish[pq.top().S] - used[pq.top().S];
-                    used[pq.top().S] = dish[pq.top().S];
-                }
-                if (dish[pq.top().S] == used[pq.top().S]) pq.pop();
-            }
- 
-            if (pq.empty() && b != 0) res = 0;
-        }
-        cout << res << endl;
+        a -= 1;
+        cout << solve(a,b) << endl;
     }
-
     return 0;
 }

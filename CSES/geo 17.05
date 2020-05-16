@@ -1,0 +1,162 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+using ftype = double;
+const ftype EPS = 1e-9;
+
+struct pt {
+	ftype x, y;
+	pt operator+(pt p) {return {x + p.x, y + p.y};}
+	pt operator-(pt p) {return {x - p.x, y - p.y};}
+	pt operator*(ftype d) {return {d*x, d*y};}
+	pt operator/(ftype d) {return {x/d, y/d};}
+};
+bool operator==(pt a, pt b) {return a.x == b.x && a.y == b.y;}
+bool operator!=(pt a, pt b) {return !(a == b);}
+ftype sq(pt p) {return p.x*p.x + p.y*p.y;}
+ftype dot(pt v, pt w) {return v.x*w.x + v.y*w.y;}
+ftype det(pt v, pt w) {return v.x*w.y - v.y*w.x;}
+ftype abs(pt p) {return sqrt(sq(p));}
+ostream& operator<<(ostream& os, pt p) {return os << "(" << p.x << ", " << p.y << ")";}
+pt translate(pt v, pt p) {return p+v;}
+pt scale(pt c, ftype factor, pt p) {return c + (p-c)*factor;}
+pt rotate(pt p, ftype a) {return {p.x*cos(a) - p.y*sin(a), p.x*sin(a) + p.y*cos(a)};}
+pt rotate90(pt p) {return {-p.y, p.x};}
+bool isPerp(pt v, pt w) {return dot(v, w) == 0;}
+ftype angle(pt v, pt w) {return acos(clamp(dot(v,w) / abs(v) / abs(w), -1.0, 1.0));}
+ftype orient(pt a, pt b, pt c) {return det(b-a, c-a);}
+bool inAngle(pt a, pt b, pt c, pt p) {
+	assert(orient(a,b,c) != 0);
+	if (orient(a, b, c) < 0) swap(b, c);
+	return orient(a, b, p) >= 0 && orient(a, c, p) <= 0;
+}
+ftype orientedAngle(pt a, pt b, pt c) {
+	if (orient(a, b, c) >= 0) return angle(b-a, c-a);
+	else return 2*M_PI - angle(b-a, c-a);
+}
+bool isConvex(vector<pt> p) {
+	bool hasPos = false, hasNeg = false;
+	for (int i=0, n=p.size(); i<n; ++i) {
+		ftype o = orient(p[i], p[(i+1) % n], p[(i+2) % n]);
+		if (o > 0) hasPos = true;
+		if (o < 0) hasNeg = true;
+	}
+	return !(hasPos && hasNeg);
+}
+bool half(pt p) {
+	assert(p.x != 0 || p.y != 0);
+	return p.y > 0 || (p.y == 0 && p.x < 0); 
+}
+void polarSort(vector<pt> &a){
+	sort(a.begin(), a.end(), [](pt v, pt w){
+		return make_tuple(half(v), 0) < make_tuple(half(w), det(v, w));
+	});
+}
+
+
+int main(){
+	cout.setf(ios::fixed); cout.precision(20);
+	pt a = {0, 5};
+	cout << a << endl;
+	
+
+}
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+using ftype = long double;
+const ftype EPS = 1e-9;
+
+struct point2d {
+	ftype x, y;
+	point2d() {}
+	// point2d(ftype a, ftype b) {x = a, y = b;}
+	// point2d(ftype x, ftype y) {this->x = x, this->y = y;}
+	point2d(ftype x, ftype y): x(x), y(y) {}
+	point2d& operator+=(const point2d &t) {
+		x += t.x;
+		y += t.y;
+		return *this;
+	}
+	point2d& operator-=(const point2d &t) {
+		x -= t.x;
+		y -= t.y;
+		return *this;
+	}
+	point2d& operator*=(ftype t) {
+		x *= t;
+		y *= t;
+		return *this;
+	}
+	point2d& operator/=(ftype t) {
+		x /= t;
+		y /= t;
+		return *this;
+	}
+	point2d operator+(const point2d &t) const {
+		return point2d(*this) += t;
+	}
+	point2d operator-(const point2d &t) const {
+		return point2d(*this) -= t;
+	}
+	point2d operator*(ftype t) const {
+		return point2d(*this) *= t;
+	}
+	point2d operator/(ftype t) const {
+		return point2d(*this) /= t;
+	}
+};
+
+struct line {
+	ftype a, b, c;
+};
+
+point2d operator*(ftype a, point2d b) {
+	return b * a; 
+}
+
+/* 
+	dot(a, b) > 0        angle = <0, 90)
+	dot(a, b) == 0       angle = 90
+	dot(a, b) < 0        angle = (90, 180>
+*/ 
+
+ftype dot(point2d a, point2d b) {
+		return a.x * b.x + a.y * b.y;
+}
+ftype norm(point2d a) {
+	return dot(a, a);
+}
+ftype abs(point2d a) {
+	return sqrt(norm(a));
+}
+ftype proj(point2d a, point2d b) {
+	return dot(a, b) / abs(b);
+}
+ftype angle(point2d a, point2d b) {
+	return acos(dot(a, b) / abs(a) / abs(b));
+}
+
+/* 
+	det(a, b) > 0        angle = (0, 180)
+	det(a, b) == 0       angle = 0 lub 180
+	det(a, b) < 0        angle = (180, 360)
+*/ 
+
+ftype det(point2d a, point2d b) {
+	return a.x * b.y - a.y * b.x;
+}
+point2d intersect(point2d a1, point2d d1, point2d a2, point2d d2) {
+	return a1 + det(a2 - a1, d2) / det(d1, d2) * d1;
+}
+
+int main(){
+	cout.setf(ios::fixed); cout.precision(20);
+	point2d a(0, -4), b(-5, 0);
+	cout << det(a, b) << endl;
+	
+
+}
